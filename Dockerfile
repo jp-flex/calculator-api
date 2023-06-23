@@ -14,8 +14,7 @@ RUN node -v
 
 
 # Expose the app port
-EXPOSE 3001
-
+EXPOSE 8080
 
 
 CMD [ "npm", "start" ]
