@@ -4,3 +4,8 @@ os: linux
 files:
   - source: /
     destination: /var/www/calculator_api
+hooks:
+  BeforeInstall:
+    - location: install.sh
+      timeout: 300
+      runas: root
