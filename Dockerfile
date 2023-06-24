@@ -4,13 +4,15 @@ WORKDIR /server
 
 COPY package.json ./
 
-COPY . .
 
 RUN npm install pg --save
 
 RUN npm install
 
 RUN node -v
+
+COPY . .
+
 
 
 # Expose the app port
