@@ -16,7 +16,7 @@ import { OperationSeeder } from './seed/operation.seeder';
 import { CalculationModule } from './calculation/calculation.module';
 import { RecordController } from './controllers/record.controller';
 
-//trigger
+
 @Module({
   imports: [HttpModule,
     TypeOrmModule.forRoot({
