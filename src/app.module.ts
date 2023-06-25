@@ -15,17 +15,18 @@ import { HttpModule } from '@nestjs/axios';
 import { OperationSeeder } from './seed/operation.seeder';
 import { CalculationModule } from './calculation/calculation.module';
 import { RecordController } from './controllers/record.controller';
-
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Module({
   imports: [HttpModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'containers-us-west-118.railway.app',
-      port: 6673,
-      username: 'postgres',
-      password: '9L2EPzt5CmMX67s24yW2',
-      database: 'railway',
+      host: process.env.PGHOST,
+      port: Number(process.env.PGPORT),
+      username: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
       autoLoadEntities: true,
       synchronize: true,
     }),
