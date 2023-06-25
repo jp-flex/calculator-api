@@ -22,7 +22,7 @@ import { RecordController } from './controllers/record.controller';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'containers-us-west-118.railway.app',
-      port: 5432,
+      port: 6673,
       username: 'postgres',
       password: '9L2EPzt5CmMX67s24yW2',
       database: 'railway',
