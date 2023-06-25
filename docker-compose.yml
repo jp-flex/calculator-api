@@ -2,10 +2,12 @@ version: '3'
 services:
   db:
     image: postgres
-    env_file:
-      - .env
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: calculator
     ports:
-      - '${POSTGRES_PORT}:5432'
+      - '5432:5432'
   app:
     build:
       context: .
@@ -14,3 +16,9 @@ services:
       - '8080:8080'
     depends_on:
       - db
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGUSER: myuser
+      PGPASSWORD: mypassword
+      PGDATABASE: calculator
