@@ -17,7 +17,7 @@ import { CalculationModule } from './calculation/calculation.module';
 import { RecordController } from './controllers/record.controller';
 import * as dotenv from 'dotenv';
 dotenv.config();
-
+console.log( process.env.PGHOST)
 @Module({
   imports: [HttpModule,
     TypeOrmModule.forRoot({
