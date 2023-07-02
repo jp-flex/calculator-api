@@ -34,6 +34,11 @@ To get started with the Calculator API, follow the steps below:
     docker-compose up -d --build
     ```
 4. The server should be up and running at: http://localhost:3001
+5. Test user credentials:
+    ```shell
+    username: test@test.com
+    password: @11aa
+    ```
 
 ## API Documentation
 After running the server. There is an api swagger doc at http://localhost:3001/api-docs 
