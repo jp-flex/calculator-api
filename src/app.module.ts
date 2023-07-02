@@ -13,10 +13,8 @@ import { Operation } from './entities/operation.entity';
 import { Record } from './entities/record.entity';
 import { HttpModule } from '@nestjs/axios';
 import { OperationSeeder } from './seed/operation.seeder';
-import { CalculationModule } from './calculation/calculation.module';
 import { RecordController } from './controllers/record.controller';
 
-console.log("SS", process.env.PGHOST)
 @Module({
   imports: [HttpModule,
     TypeOrmModule.forRoot({
@@ -30,14 +28,14 @@ console.log("SS", process.env.PGHOST)
       synchronize: true,
     }),
     TypeOrmModule.forFeature([User, Operation, Record]),
-    CalculationModule, 
     
   ],
   controllers: [AuthController, CalculatorController, RecordController],
   providers: [AuthService, UserService, JwtService, CalculationService, RecordService, OperationSeeder],
 })
+
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).forRoutes('*');
+    consumer.apply(JwtMiddleware).exclude("/(.*)/auth/(.*)").forRoutes('*');
   }
 }

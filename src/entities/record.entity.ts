@@ -1,30 +1,28 @@
-// src/entities/record.entity.ts
-
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn } from 'typeorm';
 import { Operation } from './operation.entity';
 
 @Entity()
 export class Record {
   @PrimaryGeneratedColumn()
-  id: number;
+    id: number;
 
   @Column()
-  userId: number;
+  user_id: number;
 
   @Column()
   amount: number;
 
   @Column( {default: () => '0'})
-  userBalance:number
+  user_balance:number
 
   @Column()
-  operationResponse: string;
+  operation_response: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  created_at: Date;
 
   @CreateDateColumn({ type: 'timestamp', nullable: true, default: () => 'null' })
-  deletedAt: Date;
+  deleted_at: Date;
 
   @ManyToOne(() => Operation, (operation) => operation.records)
   operation: Operation

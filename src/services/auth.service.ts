@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from 'src/dtos/create.user.dto';
+import { CreateUserDto } from '../dtos/create.user.dto';
 import { UserService } from './user.service';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class AuthService {
       throw new Error('user credentials are invalid!')
 
     const payload = { id: user.id, username: user.username };
-    const secretKey = 'your-secret-key'; // Replace with your actual secret key
+    const secretKey = 'secret-key';
     const options = { secret: secretKey, expiresIn: '1h' };
 
     const token = this.jwtService.sign(payload, options);

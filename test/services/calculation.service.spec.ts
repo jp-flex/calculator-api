@@ -1,111 +1,258 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CalculationService } from '../src/services/calculation.service';
-import { RecordService } from '../src/services/record.service';
-import { UserService } from '../src/services/user.service';
-import { Operation } from '../src/entities/operation.entity';
-import { InvalidOperatorException } from 'src/exceptions/invalid.operator.exception';
-import { DivisionByZeroException } from 'src/exceptions/division.by.zero.exception';
-import { ThirdPartyException } from 'src/exceptions/third.party.exception';
+import { Test, TestingModule } from '@nestjs/testing';
 import axios from 'axios';
+import { RecordService } from '../../src/services/record.service';
+import { Operation } from '../../src/entities/operation.entity';
+import { ThirdPartyException } from '../../src/exceptions/third.party.exception';
+import { InvalidOperatorException } from '../../src/exceptions/invalid.operator.exception'
+import { DivisionByZeroException } from '../../src/exceptions/division.by.zero.exception';
+import { CalculationService } from '../../src/services/calculation.service';
+import { Record } from '../../src/entities/record.entity';
 
 describe('CalculationService', () => {
   let calculationService: CalculationService;
   let recordService: RecordService;
-  let userService: UserService;
   let operationRepository: any;
+  let recordRepository: any;
+  const mockOperation: Operation = {
+    id: 1,
+    type: 'addition',
+    cost: 10,
+    records: [],
+  };
+  const userId = 1;
+  const userBalance = 180
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CalculationService,
         RecordService,
-        UserService,
         {
           provide: getRepositoryToken(Operation),
-          useValue: {},
+          useValue: {
+            findOne: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(Record),
+          useValue: {
+            save: jest.fn(),
+          },
         },
       ],
     }).compile();
 
     calculationService = module.get<CalculationService>(CalculationService);
     recordService = module.get<RecordService>(RecordService);
-    userService = module.get<UserService>(UserService);
-    operationRepository = module.get<any>(getRepositoryToken(Operation));
+    operationRepository = module.get(getRepositoryToken(Operation));
+    recordRepository = module.get(getRepositoryToken(Record));
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   describe('performTwoOperandsCalc', () => {
+    const firstOperand = 20;
+    const secondOperand = 5;
+    
+
     it('should perform addition correctly', async () => {
-      const operation = { id: 1, type: 'addition', cost: 5 };
-      jest.spyOn(operationRepository, 'findOne').mockResolvedValueOnce(operation);
-      jest.spyOn(recordService, 'createRecord').mockImplementation();
-      jest.spyOn(userService, 'get').mockResolvedValueOnce({ id: 1, balance: 10 , username: 'name', 
-      password: '123', status:'active'});
+      // Arrange
+      const expectedResult = 25;
+      mockOperation.type = 'addition';
+     
+      const mockGetTotalAmount = jest.spyOn(recordService, 'getTotalAmount')
+        .mockResolvedValueOnce(10);
+      const mockCreateRecord = jest.spyOn(recordService, 'createRecord')
+        .mockResolvedValueOnce({} as any);
 
-      const result = await calculationService.performTwoOperandsCalc(5, 3, 1, 'addition');
+      const mockOperationRepository = {
+        findOne: jest.fn().mockResolvedValueOnce(mockOperation),
+      };
 
-      expect(result).toBe(8);
-      expect(recordService.createRecord).toHaveBeenCalledWith(1, 1, 5, '8');
-      expect(userService.update).toHaveBeenCalled();
+      calculationService['operationRepository'] = mockOperationRepository as any;
+
+      // Act
+      const result = await calculationService.performArithmeticCalc(userId,
+        mockOperation.type, [firstOperand, secondOperand]);
+
+      // Assert
+      expect(result).toBe(expectedResult);
+      expect(mockOperationRepository.findOne)
+        .toHaveBeenCalledWith({ where: { type: mockOperation.type } });
+      expect(mockGetTotalAmount).toHaveBeenCalledWith(userId);
+      expect(mockCreateRecord)
+        .toHaveBeenCalledWith(userId, userBalance, mockOperation, expect.any(String));
     });
 
-    it('should throw InvalidOperatorException for unknown operator', async () => {
-      jest.spyOn(operationRepository, 'findOne').mockResolvedValueOnce(undefined);
+    it('should perform subtraction correctly', async () => {
+      const expectedResult = 15;
+      mockOperation.type = 'subtraction';
+     
+      const mockGetTotalAmount = jest.spyOn(recordService, 'getTotalAmount').mockResolvedValueOnce(10);
+      const mockCreateRecord = jest.spyOn(recordService, 'createRecord').mockResolvedValueOnce({} as any);
 
-      await expect(calculationService.performTwoOperandsCalc(5, 3, 1, 'unknown')).rejects.toThrow(
-        InvalidOperatorException,
-      );
+      const mockOperationRepository = {
+        findOne: jest.fn().mockResolvedValueOnce(mockOperation),
+      };
+
+      calculationService['operationRepository'] = mockOperationRepository as any;
+
+      // Act
+      const result = await calculationService.performArithmeticCalc(userId,
+        mockOperation.type, [firstOperand, secondOperand]);
+
+      // Assert
+      expect(result).toBe(expectedResult);
+      expect(mockOperationRepository.findOne).toHaveBeenCalledWith({ where: { type: mockOperation.type } });
+      expect(mockGetTotalAmount).toHaveBeenCalledWith(userId);
+      expect(mockCreateRecord).toHaveBeenCalledWith(userId, userBalance, mockOperation, expect.any(String));
     });
 
-    // Add more test cases for other operators and scenarios
+    it('should perform multiplication correctly', async () => {
+      const expectedResult = 100;
+      mockOperation.type = 'multiplication';
+     
+      const mockGetTotalAmount = jest.spyOn(recordService, 'getTotalAmount')
+        .mockResolvedValueOnce(10);
+      const mockCreateRecord = jest.spyOn(recordService, 'createRecord')
+        .mockResolvedValueOnce({} as any);
+
+      const mockOperationRepository = {
+        findOne: jest.fn().mockResolvedValueOnce(mockOperation),
+      };
+
+      calculationService['operationRepository'] = mockOperationRepository as any;
+
+      // Act
+      const result = await calculationService.performArithmeticCalc(userId,
+        mockOperation.type, [firstOperand, secondOperand]);
+
+      // Assert
+      expect(result).toBe(expectedResult);
+      expect(mockOperationRepository.findOne).toHaveBeenCalledWith({ where: { type: mockOperation.type } });
+      expect(mockGetTotalAmount).toHaveBeenCalledWith(userId);
+      expect(mockCreateRecord).toHaveBeenCalledWith(userId, userBalance, mockOperation, expect.any(String));
+    });
+
+    it('should perform division correctly', async () => {
+      const expectedResult = 4;
+      mockOperation.type = 'division';
+     
+      const mockGetTotalAmount = jest.spyOn(recordService, 'getTotalAmount')
+        .mockResolvedValueOnce(10);
+      const mockCreateRecord = jest.spyOn(recordService, 'createRecord')
+        .mockResolvedValueOnce({} as any);
+
+      const mockOperationRepository = {
+        findOne: jest.fn().mockResolvedValueOnce(mockOperation),
+      };
+
+      calculationService['operationRepository'] = mockOperationRepository as any;
+
+      // Act
+      const result = await calculationService.performArithmeticCalc(userId,
+        mockOperation.type, [firstOperand, secondOperand]);
+
+      // Assert
+      expect(result).toBe(expectedResult);
+      expect(mockOperationRepository.findOne)
+        .toHaveBeenCalledWith({ where: { type: mockOperation.type } });
+      expect(mockGetTotalAmount)
+        .toHaveBeenCalledWith(userId);
+      expect(mockCreateRecord)
+        .toHaveBeenCalledWith(userId, userBalance, mockOperation, expect.any(String));
+    });
+
+    it('should throw InvalidOperatorException when operator is not valid', async () => {
+      const mockOperationRepository = {
+        findOne: jest.fn().mockResolvedValueOnce(null),
+      };
+
+      calculationService['operationRepository'] = mockOperationRepository as any;
+      await expect(calculationService.performArithmeticCalc(2, 'invalidOp', [firstOperand, secondOperand]))
+      .rejects.toThrow(InvalidOperatorException);
+    });
+
+    it('should throw DivisionByZeroException when dividing by zero', async () => {
+      mockOperation.type = 'division';
+      const mockOperationRepository = {
+        findOne: jest.fn().mockResolvedValueOnce(mockOperation),
+      };
+
+      calculationService['operationRepository'] = mockOperationRepository as any;
+      await expect(calculationService.performArithmeticCalc(1, 'division', [firstOperand,0]))
+      .rejects.toThrow(DivisionByZeroException);
+    });
   });
 
-  describe('performSquareRoot', () => {
-    it('should calculate square root correctly', async () => {
-      const operation = { id: 2, type: 'square-root', cost: 3 };
-      jest.spyOn(operationRepository, 'findOne').mockResolvedValueOnce(operation);
-      jest.spyOn(recordService, 'createRecord').mockImplementation();
-      jest.spyOn(userService, 'get').mockResolvedValueOnce({ id: 1, balance: 10 , username: 'name', 
-      password: '123', status:'active'});
+  describe('performOneOperandsCalc', () => {
+    it('should perform square root correctly', async () => {
+      const expectedResult = 5;
+      mockOperation.type = 'square-root';
+      const mockOperationRepository = {
+        findOne: jest.fn().mockResolvedValueOnce(mockOperation),
+      };
 
-      const result = await calculationService.performSquareRoot(9, 1);
+      const mockGetTotalAmount = jest.spyOn(recordService, 'getTotalAmount').mockResolvedValueOnce(10);
+      const mockCreateRecord = jest.spyOn(recordService, 'createRecord').mockResolvedValueOnce({} as any);
 
-      expect(result).toBe(81);
-      expect(recordService.createRecord).toHaveBeenCalledWith(1, 2, 3, '81');
-      expect(userService.update).toHaveBeenCalled();
+      calculationService['operationRepository'] = mockOperationRepository as any;
+      const result = await calculationService.performArithmeticCalc(userId, mockOperation.type, [25]);
+
+      expect(result).toBe(expectedResult);
+      expect(mockOperationRepository.findOne).toHaveBeenCalledWith({ where: { type: mockOperation.type } });
+      expect(mockGetTotalAmount).toHaveBeenCalledWith(userId);
+      expect(mockCreateRecord).toHaveBeenCalledWith(userId, userBalance, mockOperation, expect.any(String));
     });
-
-    // Add more test cases for other scenarios
   });
 
   describe('generateRandomString', () => {
     it('should generate random string correctly', async () => {
-      const operation = { id: 3, type: 'random-string', cost: 0 };
-      const mockResponse = {
-        data: 'random-string-value',
+      const mockResponse = { data: 'randomString' };
+    
+      mockOperation.type = 'random-string';
+      const mockOperationRepository = {
+        findOne: jest.fn().mockResolvedValueOnce(mockOperation),
       };
-      const axiosGetSpy = jest.spyOn(axios, 'get').mockResolvedValue(mockResponse);
-      jest.spyOn(operationRepository, 'findOne').mockResolvedValueOnce(operation);
-      jest.spyOn(recordService, 'createRecord').mockImplementation();
-      jest.spyOn(userService, 'get').mockResolvedValueOnce({ id: 1, balance: 10 , username: 'name', 
-      password: '123', status:'active'});
 
-      const result = await calculationService.generateRandomString(1);
+      jest.spyOn(axios, 'get').mockResolvedValue(mockResponse);
 
-      expect(result).toBe('random-string-value');
-      expect(axiosGetSpy).toHaveBeenCalledWith(
-        'https://www.random.org/strings/?num=1&len=10&digits=on&upperalpha=on&loweralpha=on&format=plain',
-      );
-      expect(recordService.createRecord).toHaveBeenCalledWith(1, 3, 0, 'random-string-value');
-      expect(userService.update).toHaveBeenCalled();
+      const mockGetTotalAmount = jest.spyOn(recordService, 'getTotalAmount').mockResolvedValueOnce(10);
+      const mockCreateRecord = jest.spyOn(recordService, 'createRecord').mockResolvedValueOnce({} as any);
+
+      calculationService['operationRepository'] = mockOperationRepository as any;
+      const result = await calculationService.performNonArithmeticCalc(userId, 'random-string');
+
+      expect(result).toBe('randomString');
+      expect(mockOperationRepository.findOne).toHaveBeenCalledWith({ where: { type: mockOperation.type } });
+      expect(mockGetTotalAmount).toHaveBeenCalledWith(userId);
+      expect(mockCreateRecord).toHaveBeenCalledWith(userId, userBalance, mockOperation, expect.any(String));
     });
 
-    it('should throw ThirdPartyException on error', async () => {
-      jest.spyOn(axios, 'get').mockRejectedValue(new Error('API error'));
-      jest.spyOn(operationRepository, 'findOne').mockResolvedValueOnce({ id: 3, type: 'random-string', cost: 0 });
+    it('should throw ThirdPartyException when axios request fails', async () => {
+      mockOperation.type = 'random-string';
+      const mockOperationRepository = {
+        findOne: jest.fn().mockResolvedValueOnce(mockOperation),
+      };
+      jest.spyOn(axios, 'get').mockRejectedValue(new Error('Request failed'));
 
-      await expect(calculationService.generateRandomString(1)).rejects.toThrow(ThirdPartyException);
+      calculationService['operationRepository'] = mockOperationRepository as any;
+      await expect(calculationService.performNonArithmeticCalc(userId, "random-string"))
+        .rejects.toThrow(ThirdPartyException);
     });
 
+    it('should throw InvalidOperatorException when there is no RandomString operator', async () => {
+      mockOperation.type = 'random-string';
+      const mockOperationRepository = {
+        findOne: jest.fn().mockResolvedValueOnce(null),
+      };
+
+      calculationService['operationRepository'] = mockOperationRepository as any;
+      await expect(calculationService.performNonArithmeticCalc(userId, "randomString"))
+        .rejects.toThrow(InvalidOperatorException);
+    });
   });
 });

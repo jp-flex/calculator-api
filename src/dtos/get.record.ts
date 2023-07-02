@@ -1,11 +1,28 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Operation } from '../entities/operation.entity';
+
 export class GetRecord {
+  @ApiProperty()
   id: number;
 
-  operation: string;
+  @ApiProperty()
+  userId: number;
 
+  @ApiProperty()
   amount: number;
 
-  operationResponse: string ;
+  @ApiProperty()
+  operation: Operation;
 
-  date: Date;
+  @ApiProperty()
+  operationResponse: string;
+
+  @ApiProperty()
+  userBalance: number;
+  
+  @ApiProperty()
+  deletedAt: Date;
+
+  @ApiProperty()
+  createdAt: Date;
 }

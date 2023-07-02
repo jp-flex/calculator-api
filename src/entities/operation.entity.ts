@@ -7,14 +7,14 @@ import { Record } from './record.entity';
 export class Operation {
   
   @PrimaryGeneratedColumn()
-  id: number;
+    id: number;
 
   @Column()
-  type: string;
+    type: string;
 
   @Column()
-  cost: number;
+    cost: number;
 
   @OneToMany(() => Record, record => record.operation)
-  records: Record[];
+    records: Record[];
 }

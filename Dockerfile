@@ -11,7 +11,7 @@ RUN node -v
 COPY . .
 
 
-EXPOSE 8080
+EXPOSE 3001
 
 
 CMD [ "npm", "start" ]

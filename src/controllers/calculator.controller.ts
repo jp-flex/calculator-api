@@ -1,73 +1,73 @@
-import { Controller, Post, Req, Param, UseGuards, ParseIntPipe, BadRequestException, 
-  NotFoundException, HttpException, HttpStatus} from '@nestjs/common';
-import { DivisionByZeroException } from 'src/exceptions/division.by.zero.exception';
-import { InvalidOperatorException } from 'src/exceptions/invalid.operator.exception';
-import { ThirdPartyException } from 'src/exceptions/third.party.exception';
-import { ZeroBalanceException } from 'src/exceptions/zero.balance.exception';
-import { JwtMiddleware } from 'src/middlewares/jwt-middeware';
-import { CalculationService } from 'src/services/calculation.service';
+import { Controller, Post, Get, Req, Param, BadRequestException, 
+  HttpException, HttpStatus, Version, Body} from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { OperandsDto } from '../dtos/operands.dto';
+import { DivisionByZeroException } from '../exceptions/division.by.zero.exception';
+import { InvalidOperandsException } from '../exceptions/invalid.operatands.exception';
+import { InvalidOperatorException } from '../exceptions/invalid.operator.exception';
+import { ZeroBalanceException } from '../exceptions/zero.balance.exception';
+import { CalculationService } from '../services/calculation.service';
 
+@ApiBearerAuth()
 @Controller('calculator')
-@UseGuards(JwtMiddleware)
 export class CalculatorController {
 
   constructor(private readonly calculationService: CalculationService) {}
 
-  @Post(':operator/:firstOperand/:secondOperand')
-  async twoOperandsCalc(
+  @Version('1')
+  @Post('arithmetic-operation/:operator')
+  async arithmeticOperation(
+    @Req() req,
     @Param('operator') operator: string,
-    @Param('firstOperand', ParseIntPipe) firstOperand: number,
-    @Param('secondOperand', ParseIntPipe) secondOperand: number,
-    @Req() req
+    @Body() body:OperandsDto
   ) {
-    let result = 0
+    let result = 0;
     try {
-      result = await this.calculationService.performTwoOperandsCalc(firstOperand, secondOperand, req.user.id, operator);
+      result = await this.calculationService
+        .performArithmeticCalc(req.user.id, operator, body.operands);
       return { result };
     } catch (error) {
       if (error instanceof DivisionByZeroException) {
         throw new BadRequestException(error.message);
       } else if (error instanceof ZeroBalanceException) {
         throw new BadRequestException(error.message);
-      } 
+      } else if (error instanceof InvalidOperatorException) {
+        throw new BadRequestException(error.message);
+      } else if (error instanceof InvalidOperandsException) {
+        throw new BadRequestException(error.message);
+      }
     } 
   }
 
-  @Post('/square-root/:operand/')
-  async squareRoot(
-    @Param('operand', ParseIntPipe) operand: number,
-    @Req() req
-  ) {
-    let result = 0
-    try {
-      result = await this.calculationService.performSquareRoot(operand, req.user.id);
-      return { result };
-    } catch (error) {
-
-      throw new BadRequestException(error.message);  
-    } 
-    
-  }
-
-  @Post('random-string/')
-  async randomString(
-    @Req() req
+  @Version('1')
+  @Post('non-arithmetic-operation/:operator')
+  async noOperandCalc(
+    @Req() req,
+    @Param('operator') operator: string,
   ) {
    
     let result = '';
     try {
-      result = await this.calculationService.generateRandomString( req.user.id);
+      result = await this.calculationService.performNonArithmeticCalc( req.user.id, operator);
       return { result };
     } catch (error) {
-      if (error instanceof ThirdPartyException) {
-        throw new HttpException(error.message, HttpStatus.SERVICE_UNAVAILABLE);
-      } else {
+      if (error instanceof InvalidOperatorException){
         throw new BadRequestException(error.message);  
-      } 
+      } else if (error instanceof ZeroBalanceException) {
+        throw new BadRequestException(error.message);  
+      } else {
+        throw new HttpException(error.message, HttpStatus.SERVICE_UNAVAILABLE);
+      }
     } 
     
   }
 
- 
-}
+  @Version('1')
+  @Get('operations/')
+  async getOperations() {
+    const operations = await this.calculationService.getOperations();
+    const mapped = operations.map(op => {return {id: op.id, operation:op.type}});
 
+    return {operations:  mapped};
+  }
+}

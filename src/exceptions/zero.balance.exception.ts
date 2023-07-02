@@ -1,5 +1,5 @@
 export class ZeroBalanceException extends Error {
-  constructor(msg) {
+  constructor(msg:string) {
     super(msg);
   }
 }

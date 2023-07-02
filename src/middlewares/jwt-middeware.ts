@@ -8,16 +8,18 @@ export class JwtMiddleware implements NestMiddleware {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (token) {
       try {
-        const decoded = verify(token, 'your-secret-key');
+        const decoded = verify(token, 'secret-key');
+
         // You can add the decoded token to the request object for further use
         req['user'] = decoded
+        next();
       } catch (error) {
         // Handle token validation error
         // For example, you can throw an exception or return an error response
         return res.status(401).json({ message: 'Invalid token' });
       }
+    } else {
+      return res.status(401).json({ message: 'Token is empty' });
     }
-
-    next();
   }
 }
