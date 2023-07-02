@@ -21,7 +21,7 @@ To get started with the Calculator API, follow the steps below:
 
 1. Clone the repository:
    ```shell
-   git clone https://github.com/your-repository/calculator-api.git
+   git clone https://github.com/jotapemoraez/calculator-api.git
    ```
 
 2. Change into the project directory:
