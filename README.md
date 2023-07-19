@@ -1,6 +1,9 @@
 # Calculator API
 This repository contains the source code for the Calculator API, built with NestJS. The API provides various arithmetic and non-arithmetic operations, user authentication, and record management functionalities.
 
+## API Documentation
+After running the server. There is an api swagger doc at http://localhost:3001/api-docs
+
 ## Features
 - User signup and login with authentication
 - Arithmetic operations (addition, subtraction, multiplication, division)
@@ -39,6 +42,3 @@ To get started with the Calculator API, follow the steps below:
     username: test@test.com
     password: @11aa
     ```
-
-## API Documentation
-After running the server. There is an api swagger doc at http://localhost:3001/api-docs 
