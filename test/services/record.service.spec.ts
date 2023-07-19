@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Operation } from 'src/entities/operation.entity';
 import { RecordService } from '../../src/services/record.service';
 import { Record } from '../../src/entities/record.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { SelectQueryBuilder } from '@mikro-orm/mysql';
+
 
 describe('RecordService', () => {
   let recordService: RecordService;
@@ -27,17 +27,13 @@ describe('RecordService', () => {
 
   describe('createRecord', () => {
     it('should create a new record', async () => {
-      // Create a mock operation and response
       const mockOperation: Operation = { id: 1, cost: 10, type: 'addition', records: [] };
       const mockResponse = 'Success';
 
-      // Mock the save method of the recordRepository
       jest.spyOn(recordRepository, 'save').mockImplementation(() => Promise.resolve(new Record()));
 
-      // Call the createRecord method
       const result = await recordService.createRecord(1, 200, mockOperation, mockResponse);
 
-      // Assertions
       expect(result).toBeInstanceOf(Record);
       expect(recordRepository.save).toBeCalledWith(expect.any(Record));
     });
@@ -45,7 +41,6 @@ describe('RecordService', () => {
 
   describe('getRecords', () => {
     it('should return records and total count', async () => {
-      // Create mock data
       const userId = 1;
       const pageOptions = { page: 1, limit: 10 };
       const filter = { operation: 'sub' , amount: 2};
@@ -110,10 +105,8 @@ describe('RecordService', () => {
       jest.spyOn(recordRepository, 'createQueryBuilder')
         .mockImplementation(() => createQueryBuilder);
 
-      // Call the getTotalAmount method
       const result = await recordService.getTotalAmount(1);
 
-      // Assertions
       expect(result).toBe(mockQueryResult.sum);
       expect(recordRepository.createQueryBuilder).toBeCalledTimes(1);
     });
