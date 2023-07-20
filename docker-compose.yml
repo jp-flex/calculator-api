@@ -12,6 +12,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: calculator-api
     ports:
       - '3001:3001'
     depends_on:

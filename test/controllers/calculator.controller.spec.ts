@@ -6,7 +6,7 @@ import { CalculatorController } from '../../src/controllers/calculator.controlle
 import { InvalidOperatorException } from '../../src/exceptions/invalid.operator.exception';
 import { DivisionByZeroException } from '../../src/exceptions/division.by.zero.exception';
 import { ZeroBalanceException } from '../../src/exceptions/zero.balance.exception';
-import { InvalidOperandsException } from '../../src/exceptions/invalid.operatands.exception';
+import { InvalidOperandsException } from '../../src/exceptions/invalid.operands.exception';
 
 describe('CalculatorController', () => {
   let app: INestApplication;
@@ -109,7 +109,8 @@ describe('CalculatorController', () => {
     it('should return the result of non-arithmetic operation', async () => {
       const expectedResult = { result: 'Result' };
 
-      jest.spyOn(calculationService, 'performNonArithmeticCalc').mockResolvedValueOnce(expectedResult.result);
+      jest.spyOn(calculationService, 'performNonArithmeticCalc')
+        .mockResolvedValueOnce(expectedResult.result);
 
       const response = await request(app.getHttpServer())
         .post('/calculator/non-arithmetic-operation/someOperator')
@@ -119,12 +120,12 @@ describe('CalculatorController', () => {
     });
 
     it('should handle InvalidOperatorException and return 400 Bad Request', async () => {
-      jest.spyOn(calculationService, 'performNonArithmeticCalc').mockRejectedValueOnce(new InvalidOperatorException());
+      jest.spyOn(calculationService, 'performNonArithmeticCalc')
+        .mockRejectedValueOnce(new InvalidOperatorException('Invalid operator'));
 
       const response = await request(app.getHttpServer())
         .post('/calculator/non-arithmetic-operation/invalidOperator')
         .expect(400);
-
       expect(response.body.message).toEqual('Invalid operator');
     });
 

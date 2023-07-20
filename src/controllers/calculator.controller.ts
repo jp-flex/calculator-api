@@ -3,7 +3,7 @@ import { Controller, Post, Get, Req, Param, BadRequestException,
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { OperandsDto } from '../dtos/operands.dto';
 import { DivisionByZeroException } from '../exceptions/division.by.zero.exception';
-import { InvalidOperandsException } from '../exceptions/invalid.operatands.exception';
+import { InvalidOperandsException } from '../exceptions/invalid.operands.exception';
 import { InvalidOperatorException } from '../exceptions/invalid.operator.exception';
 import { ZeroBalanceException } from '../exceptions/zero.balance.exception';
 import { CalculationService } from '../services/calculation.service';

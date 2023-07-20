@@ -1,5 +1,5 @@
 export class InvalidOperatorException extends Error {
-  constructor() {
-    super('Invalid operator');
+  constructor(msg:string) {
+    super(msg);
   }
 }

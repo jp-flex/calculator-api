@@ -1,97 +1,70 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import axios from 'axios';
 import { InvalidOperatorException } from '../exceptions/invalid.operator.exception';
-import { ThirdPartyException } from '../exceptions/third.party.exception';
 import { Repository } from 'typeorm';
 import { Operation } from '../entities/operation.entity';
 import { RecordService } from './record.service';
 import { ZeroBalanceException } from '../exceptions/zero.balance.exception';
-import { DivisionByZeroException } from '../exceptions/division.by.zero.exception';
-import { InvalidOperandsException } from '../exceptions/invalid.operatands.exception';
-
+import { ArithmeticOperator, ArithmeticOperators } from '../calculator_usecase/arithmetic.operator';
+import { Add } from '../calculator_usecase/add';
+import { Subtract } from '../calculator_usecase/subtract';
+import { Divide } from '../calculator_usecase/divide';
+import { Multiply } from '../calculator_usecase/multiply';
+import { SquareRoot } from '../calculator_usecase/square.root';
+import { NonArithmeticOperator, NonArithmeticOperators } from '../calculator_usecase/non.arithmetic.operator';
+import { RandomString } from '../calculator_usecase/random.string';
 
 @Injectable()
 export class CalculationService {
+
+  private arithmeticOperatorUseCases: ArithmeticOperator[] = [
+    new Add(ArithmeticOperators.Addition),
+    new Subtract(ArithmeticOperators.Subtract),
+    new Divide(ArithmeticOperators.Division),
+    new Multiply(ArithmeticOperators.Multiply),
+    new SquareRoot(ArithmeticOperators.SquareRoot)
+  ];
+
+  private nonArithmeticOperatorsUseCases:NonArithmeticOperator[] = [
+    new RandomString(NonArithmeticOperators.RandomString)
+  ]
+
   constructor(
     private recordService: RecordService,
     @InjectRepository(Operation)
     private operationRepository: Repository<Operation>
   ) {}
 
-  async performArithmeticCalc(userId:number, operator:string, operands:number[]): Promise<number> {
+  async performArithmeticCalc(userId:number, operator:string, 
+    operands:number[]): Promise<number> {
 
     const operation = await this.operationRepository.findOne({ where: { type: operator } });
- 
-    if (!operation)
-      throw new InvalidOperatorException();
-    
-    if (['addition', 'subtraction', 'division',
-     'multiplication'].indexOf( operator) !== -1 && operands.length !== 2) {
-      throw new InvalidOperandsException();
-    } else if (operator === 'square-root'  && operands.length !== 1) {
-      throw new InvalidOperandsException();
-    } 
-    
-    let result = 0;
-    switch (operator) {
-      case 'addition': {
-        result = operands[0] + operands[1];
-        break;
-      }
-      case 'new-addition': {
-        result = operands[0] + operands[1];
-        break;
-      }
-      case 'subtraction': {
-        result = operands[0] - operands[1];
-        break;
-      }
-      case 'multiplication': {
-        result =  operands[0] * operands[1];
-        break;
-      }
-      case 'square-root': {
-        result =  Math.sqrt(operands[0]);
-        break;
-      }
-      case 'division': {
-        if (operands[1] === 0)
-          throw new DivisionByZeroException();
 
-        result = operands[0] / operands[1];
-        break;
-      }
-      default:
-        throw new InvalidOperatorException();
-    }
+    if (!operation)
+      throw new InvalidOperatorException(`Invalid operator: please use one
+      of the following operators: ${Object.values(ArithmeticOperators).join(", ")}`);
+
+    const arithmeticOperator = this.arithmeticOperatorUseCases
+      .find(op =>op.type == operation.type);
+    
+    let result = arithmeticOperator.performOperation(operands);
 
     result = Number(result.toFixed(2));
     
     await this.verifyBalanceAndCreateRecord(userId, result.toString(), operation);
     return result;
-
   }
 
   async performNonArithmeticCalc(userId: number, operator:string): Promise<string> {
     const operation = await this.operationRepository.findOne({ where: { type: operator } });
 
-    let response:any;
-    let result = "";
+    if (!operation)
+      throw new InvalidOperatorException(`Invalid operator: please use one
+      of the following operators: ${Object.values(NonArithmeticOperators).join(", ")}`);
 
-    switch (operator) {
-      case 'random-string':
-        try {
-          response =  await axios
-            .get('https://www.random.org/strings/?num=1&len=10&digits=on&upperalpha=on&loweralpha=on&format=plain');
-          result = response.data.trim();
-        } catch (error) {
-          throw new ThirdPartyException('Operation unavailable at the moment.');
-        }
-        break;
-      default:
-        throw new InvalidOperatorException();
-    }
+    const op = this.nonArithmeticOperatorsUseCases.find( o => o.type = operation.type);
+
+    const result = await op.performOperationAsync(); 
 
     await this.verifyBalanceAndCreateRecord(userId, result, operation);
     return result;
