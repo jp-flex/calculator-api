@@ -4,8 +4,8 @@ import { Operation } from '../entities/operation.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
 import * as bcryptjs from 'bcryptjs';
-import { ArithmeticOperators } from 'src/calculator_usecase/arithmetic.operator';
-import { NonArithmeticOperators } from 'src/calculator_usecase/non.arithmetic.operator';
+import { ArithmeticOperators } from '../calculator_usecase/arithmetic.operator';
+import { NonArithmeticOperators } from '../calculator_usecase/non.arithmetic.operator';
 
 @Injectable()
 export class OperationSeeder implements OnModuleInit {
