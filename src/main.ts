@@ -37,7 +37,7 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, document);
 
   if (process.env.localhost) {
-    await app.listen(3001);
+    await app.listen(3000);
   }  else {
     //start host at railway server
     await app.listen(process.env.PORT || 3000, '0.0.0.0');
