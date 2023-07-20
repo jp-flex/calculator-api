@@ -36,7 +36,13 @@ async function bootstrap() {
   // Serve the generated Swagger document at a specific path
   SwaggerModule.setup('api-docs', app, document);
 
-  await app.listen(3001);
+  if (process.env.localhost) {
+    await app.listen(3001);
+  }  else {
+    //start host at railway server
+    await app.listen(process.env.PORT || 3000, '0.0.0.0');
+  }
+    
   
 }
 bootstrap();
