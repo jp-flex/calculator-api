@@ -20,7 +20,8 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://0.0.0.0:3000',
       'https://calculator-client-production.up.railway.app/',
-      'https://cors-anywhere-production-6f0a.up.railway.app'
+      'https://cors-anywhere-production-6f0a.up.railway.app',
+      'https://cors-anywhere-production-6f0a.up.railway.app/https://calculator-api-production-97a7.up.railway.app/truenorth/v1/auth/login'
     ],
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
