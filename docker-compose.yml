@@ -23,4 +23,4 @@ services:
       PGUSER: myuser
       PGPASSWORD: mypassword
       PGDATABASE: calculator
-      LOCALHOST: localhost-
+      LOCALHOST_PORT: 3001

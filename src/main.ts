@@ -18,6 +18,8 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000',
+      'http://0.0.0.0:3000',
+      'https://calculator-client-production.up.railway.app/'
     ],
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
@@ -25,7 +27,8 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('True North Official Calculator')
-    .setDescription('Your API Description')
+    .setDescription(`This API implements arithmetic and non arithmetic 
+    calculations that can be accessed via Bearer auth.`)
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -36,12 +39,8 @@ async function bootstrap() {
   // Serve the generated Swagger document at a specific path
   SwaggerModule.setup('api-docs', app, document);
 
-  if (process.env.localhost) {
-    await app.listen(3000);
-  }  else {
-    //start host at railway server
-    await app.listen(process.env.PORT || 3000, '0.0.0.0');
-  }
+  //LOCALHOST_PORT is the port for localhost env while 3000 is for remote host
+  await app.listen(process.env.LOCALHOST_PORT || 3000);
     
   
 }

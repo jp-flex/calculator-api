@@ -1,18 +1,19 @@
 # Calculator API
-This repository contains the source code for the Calculator API, built with NestJS. The API provides various arithmetic and non-arithmetic operations, user authentication, and record management functionalities.
+This repository contains the source code for the Calculator API, built with NestJS. The API provides various arithmetic and one non-arithmetic operation, user authentication, and record management functionalities.
 
 ## API Documentation
-After running the server. There is an api swagger doc at http://localhost:3001/api-docs
-To run the api through local swagger ui:
-- call signup endpoint with credentials: test@test.com | @11aa
+After running the server. The swagger api doc can be accessed via local environment http://localhost:3001/api-docs
+or remote https://calculator-api-production-97a7.up.railway.app/api-docs
+For running the api through swagger, Bearer auth is necessary:
+- call login endpoint with credentials: test@test.com | @11aa
 - copy the token
-- click on Authorize button at top right
+- click the Authorize button on top right
 - paste the token and click Authorize
-- now all functionalities endpoints can be executed
+- now the non auth endpoints are authorized
 
 ## Features
 - User signup and login with authentication
-- Arithmetic operations (addition, subtraction, multiplication, division)
+- Arithmetic operations (addition, subtraction, multiplication, division, square root)
 - Non-arithmetic operations (generate random string)
 - The logic related to the arithmetic and non-arithmetic ops are at calculator_usecase package
 - Record management (retrieve operation records, delete operation records)
@@ -21,7 +22,7 @@ To run the api through local swagger ui:
 - The user balance is deducted by the cost of the operation 
 
 ## Prerequisites
-- Docker
+- Docker (env variables and local database configs are defined at the docker compose file)
 - NodeJS
 - NPM
 
@@ -59,3 +60,10 @@ To get started with the Calculator API, follow the steps below:
     username: test@test.com
     password: @11aa
     ```
+
+## Remote environment
+The server is hosted at RailWay: 
+https://calculator-api-production-97a7.up.railway.app/
+
+Railway uses DockerFile to deploy the server
+The Postgres server is also hosted at RailWay (the remote pg env variables are defined at RailWay)
