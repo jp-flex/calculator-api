@@ -42,7 +42,7 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, document);
 
   //LOCALHOST_PORT is the port for localhost env while 3000 is for remote host
-  await app.listen(process.env.LOCALHOST_PORT || process.env.PORT , '0.0.0.0');
+  await app.listen(process.env.PORT , '0.0.0.0');
 
     
   
