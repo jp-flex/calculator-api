@@ -80,3 +80,6 @@ https://calculator-api-production-97a7.up.railway.app/
 
 Railway uses DockerFile to deploy the server
 The Postgres server is also hosted at RailWay (the remote pg env variables are defined at RailWay)
+
+## Tech Debt
+- in the context of a real production app maybe in the future add a migration framework
