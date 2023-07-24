@@ -41,10 +41,6 @@ async function bootstrap() {
   // Serve the generated Swagger document at a specific path
   SwaggerModule.setup('api-docs', app, document);
 
-  console.log( process.env.RAILWAY_SERVICE_CALCULATOR_API_URL)
-  console.log( process.env.RAILWAY_SERVICE_CALCULATOR_API_PORT)
-  console.log(process.env.PORT)
-
   //LOCALHOST_PORT is the port for localhost env while 3000 is for remote host
   await app.listen(process.env.LOCALHOST_PORT || process.env.PORT , '0.0.0.0');
 

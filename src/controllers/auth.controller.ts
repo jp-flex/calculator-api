@@ -28,6 +28,7 @@ export class AuthController {
   async login(@Body() createUserDto: CreateUserDto): Promise<{ token: string }> {
     let token = null;
     this.sanitizeCredentials(createUserDto);
+    console.log("user: ", createUserDto.username, createUserDto.password)
     try {
       token =  await this.authService.login(createUserDto);
     } catch (error) {
